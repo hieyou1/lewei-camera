@@ -1,4 +1,4 @@
-const Controller = require("./lib/drone-controller");
+const { Drone: Controller } = require("dronelib");
 const Camera = require("./lib/capture-camera");
 const wifiConnect = require("./lib/connect-wifi");
 class Drone {
@@ -27,7 +27,8 @@ class Drone {
         if (this._inited) return;
         this._inited = true;
         if (this.opts.wifi != false) await wifiConnect(this.opts.wifi.ssid, this.opts.wifi.password);
-        this.control = new Controller(this.opts?.autoenable ?? true);
+        this.control = new Controller();
+        if (this.opts?.autoenable) this.control.enable();
         /**
          * @type {ReadableStream} Camera H.264 stream
          */
