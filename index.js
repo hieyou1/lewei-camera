@@ -52,8 +52,6 @@ class Camera extends EventEmitter {
         });
         this.lowdef = lowdef ?? false;
         this.running = false;
-        this.width = 1280;
-        this.height = 720;
         this.startStream();
     }
 }
