@@ -1,5 +1,5 @@
 {
-    "name": "eachine",
+    "name": "lewei-camera",
     "version": "1.0.0",
     "description": "",
     "main": "index.js",
@@ -8,10 +8,8 @@
     },
     "keywords": [],
     "author": "",
-    "license": "ISC",
+    "license": "GPL-3.0",
     "dependencies": {
-        "dronelib": "file:../dronelib",
-        "node-wifi": "^2.0.14",
         "pipe2jpeg": "^0.3.1",
         "spawn-command": "*"
     }
