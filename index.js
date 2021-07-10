@@ -11,15 +11,18 @@ class Camera extends EventEmitter {
         if (!this.pybridge.killed) this.pybridge.kill("SIGINT");
         this.pybridge = null;
         this.stream = null;
-        this.p2j = null;
+        this.rawstream = null;
     }
     /**
-     * @function startPylwdroneStream
+     * @function startStream
      * @description Start and get camera stream
      * @returns {stream.Readable} The H.264 stream
      */
-    startPylwdroneStream() {
+    startStream() {
         if (this.running) this.stopCam();
+        /**
+         * @private
+         */
         this.pybridge = spawnCommand(`pylwdrone -q stream start${((this.lowdef) ? " --low-def " : " ")}--out-file -`);
         this.running = true;
         this.pybridge.stderr.on("data", (a) => { console.log(a.toString()) });
@@ -27,9 +30,19 @@ class Camera extends EventEmitter {
         this.pybridge.on("error", console.error);
         this.pybridge.on("exit", console.log);
         this.pybridge.on("close", console.log);
-        this.stream = this.pybridge.stdout;
-        this.p2j = new P2J();
-        this.stream.pipe(this.p2j);
+
+        /**
+         * @type {stream.Readable}
+         */
+        this.rawstream = this.pybridge.stdout;
+
+        /**
+         * @type {P2J}
+         */
+        this.stream = new P2J();
+        this.rawstream.pipe(this.stream);
+
+
         this.pybridge.on("exit", () => {
             this.stopCam();
             this.emit("disconnected");
@@ -43,17 +56,16 @@ class Camera extends EventEmitter {
      * @constructor
      * @class
      * @classdesc
-     * @param {Boolean} [lowdef=false] - Whether or not to have a low definition camera (low fps and bps).
-     * @param {Boolean} [pylwdrone=true] Use pylwdrone by default instead of native implementation (not done yet)
+     * @param {Boolean} lowdef - Whether or not to have a low definition camera (low fps and bps).
      * @returns {Camera}
      */
-    constructor(lowdef, pylwdrone) {
+    constructor(lowdef) {
         super({
             "captureRejections": true
         });
         this.lowdef = lowdef ?? false;
         this.running = false;
-        if (pylwdrone) this.startPylwdroneStream();
+        this.startStream();
     }
 }
 module.exports = { Camera };
