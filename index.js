@@ -14,11 +14,11 @@ class Camera extends EventEmitter {
         this.p2j = null;
     }
     /**
-     * @function startStream
+     * @function startPylwdroneStream
      * @description Start and get camera stream
      * @returns {stream.Readable} The H.264 stream
      */
-    startStream() {
+    startPylwdroneStream() {
         if (this.running) this.stopCam();
         this.pybridge = spawnCommand(`pylwdrone -q stream start${((this.lowdef) ? " --low-def " : " ")}--out-file -`);
         this.running = true;
@@ -43,16 +43,17 @@ class Camera extends EventEmitter {
      * @constructor
      * @class
      * @classdesc
-     * @param {Boolean} lowdef - Whether or not to have a low definition camera (low fps and bps).
+     * @param {Boolean} [lowdef=false] - Whether or not to have a low definition camera (low fps and bps).
+     * @param {Boolean} [pylwdrone=true] Use pylwdrone by default instead of native implementation (not done yet)
      * @returns {Camera}
      */
-    constructor(lowdef) {
+    constructor(lowdef, pylwdrone) {
         super({
             "captureRejections": true
         });
         this.lowdef = lowdef ?? false;
         this.running = false;
-        this.startStream();
+        if (pylwdrone) this.startPylwdroneStream();
     }
 }
 module.exports = { Camera };
