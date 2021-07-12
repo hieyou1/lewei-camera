@@ -1,4 +1,3 @@
-const FPS = 30;
 window.onload = async () => {
     let canvas = document.getElementById("camera");
     let ctx = canvas.getContext("2d");
