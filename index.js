@@ -25,11 +25,6 @@ class Camera extends EventEmitter {
          */
         this.pybridge = spawnCommand(`pylwdrone -q stream start${((this.lowdef) ? " --low-def " : " ")}--out-file -`);
         this.running = true;
-        this.pybridge.stderr.on("data", (a) => { console.log(a.toString()) });
-        this.pybridge.on("disconnect", console.log);
-        this.pybridge.on("error", console.error);
-        this.pybridge.on("exit", console.log);
-        this.pybridge.on("close", console.log);
 
         /**
          * @type {stream.Readable}
@@ -43,9 +38,12 @@ class Camera extends EventEmitter {
         this.rawstream.pipe(this.stream);
 
 
-        this.pybridge.on("exit", () => {
+        this.pybridge.on("exit", (code) => {
             this.stopCam();
             this.emit("disconnected");
+            if (code == 0 && this.resilient) {
+                this.startStream();
+            }
         });
         this.stream.on("jpeg", (jpeg) => {
             this.jpeg = jpeg;
@@ -56,15 +54,17 @@ class Camera extends EventEmitter {
      * @constructor
      * @class
      * @classdesc
-     * @param {Boolean} lowdef - Whether or not to have a low definition camera (low fps and bps).
+     * @param {Boolean} [lowdef=false] Use low definition camera stream.
+     * @param {Boolean} [resilient=false] Automatically restart pybridge if disconnected due to inactivity.
      * @returns {Camera}
      */
-    constructor(lowdef) {
+    constructor(lowdef = false, resilient = false) {
         super({
             "captureRejections": true
         });
-        this.lowdef = lowdef ?? false;
+        this.lowdef = lowdef;
         this.running = false;
+        this.resilient = resilient;
         this.startStream();
     }
 }
