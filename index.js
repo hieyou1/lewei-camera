@@ -43,7 +43,7 @@ class Camera extends EventEmitter {
         this.rawstream.pipe(this.stream);
 
 
-        this.rawstream.on("exit", () => {
+        this.pybridge.on("exit", () => {
             this.stopCam();
             this.emit("disconnected");
         });
