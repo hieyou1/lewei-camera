@@ -2,13 +2,14 @@ const spawnCommand = require("spawn-command");
 const P2J = require("pipe2jpeg");
 const stream = require("stream");
 const { EventEmitter } = require("events");
+const exitHook = require("exit-hook");
 class Camera extends EventEmitter {
     /**
      * @function stopCam
      * @description Stops camera stream
      */
     stopCam() {
-        if (!this.pybridge.killed) this.pybridge.kill("SIGINT");
+        if (this?.pybridge?.killed === false) this.pybridge.kill("SIGINT");
         this.pybridge = null;
         this.stream = null;
         this.rawstream = null;
@@ -66,6 +67,13 @@ class Camera extends EventEmitter {
         this.running = false;
         this.resilient = resilient;
         this.startStream();
+
+
+        exitHook(() => {
+            if (this.running) {
+                this.stopCam();
+            }
+        });
     }
 }
 module.exports = { Camera };

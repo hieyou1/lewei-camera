@@ -10,6 +10,7 @@
     "author": "",
     "license": "Apache-2.0",
     "dependencies": {
+        "exit-hook": "^2.2.1",
         "pipe2jpeg": "^0.3.1",
         "spawn-command": "*"
     }
